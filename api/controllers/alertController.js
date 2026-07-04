@@ -33,7 +33,7 @@ async function getAlerts(req, res) {
   const alerts = await AlertEvent.find(filter)
     .sort({ startTime: -1 })
     .limit(max)
-    .lean({ virtuals: true });
+    .lean();
 
   res.json({ success: true, count: alerts.length, data: alerts });
 }
@@ -45,7 +45,7 @@ async function getActiveAlerts(req, res) {
   const deviceId = req.query.deviceId || config.deviceId;
   const alerts = await AlertEvent.find({ deviceId, status: 'ONGOING' })
     .sort({ startTime: -1 })
-    .lean({ virtuals: true });
+    .lean();
 
   res.json({ success: true, count: alerts.length, data: alerts });
 }
@@ -63,7 +63,7 @@ async function getResolvedAlerts(req, res) {
   const alerts = await AlertEvent.find(filter)
     .sort({ endTime: -1 })
     .limit(max)
-    .lean({ virtuals: true });
+    .lean();
 
   res.json({ success: true, count: alerts.length, data: alerts });
 }

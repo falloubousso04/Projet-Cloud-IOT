@@ -21,8 +21,9 @@ function formatTime(date) {
 function formatDateTime(date) {
   return new Date(date).toLocaleString('fr-FR');
 }
-function formatDuration(seconds) {
-  if (seconds == null) return '—';
+function formatDuration(startTime, endTime) {
+  if (!startTime || !endTime) return '—';
+  const seconds = Math.round((new Date(endTime) - new Date(startTime)) / 1000);
   const m = Math.floor(seconds / 60);
   const s = seconds % 60;
   return m > 0 ? `${m} min ${s}s` : `${s}s`;
@@ -252,7 +253,7 @@ async function refreshAlerts() {
         <td>${a.endTime ? formatDateTime(a.endTime) : '—'}</td>
         <td>${a.maxValue}</td>
         <td>${a.thresholdAtEvent}</td>
-        <td>${formatDuration(a.durationSeconds)}</td>
+        <td>${formatDuration(a.startTime, a.endTime)}</td>
         <td>${tag}</td>
       </tr>`;
     })
