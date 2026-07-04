@@ -6,16 +6,20 @@
  * Usage : npm run seed        (dans le dossier api, avec un .env valide)
  *
  * ⚠️  Ce script EFFACE les collections avant de les repeupler.
+ *
+ * Performance : la logique d'état (hystérésis) est appliquée EN MÉMOIRE, puis
+ * les documents sont insérés en masse (insertMany) — rapide même sur Atlas.
  */
 const mongoose = require('mongoose');
 const { config } = require('../config/env');
 const connectDB = require('../config/db');
 const Measurement = require('../models/Measurement');
 const AlertEvent = require('../models/AlertEvent');
-const { processMeasurement } = require('../services/alertService');
+const { computeState } = require('../services/alertService');
 
 const DEVICE = config.deviceId;
 const THRESHOLD = config.defaultThreshold;
+const HYSTERESIS = config.hysteresis;
 
 // Profil de température moyen selon l'heure (simulation salle informatique)
 function baseTemperature(hour) {
@@ -32,52 +36,61 @@ async function seed() {
   await AlertEvent.deleteMany({});
 
   const now = new Date();
-  const DAYS = 7; // une semaine d'historique
-  let inserted = 0;
+  const DAYS = 7;
+
+  const measurements = [];
+  const alertEvents = [];
+  let currentState = 'NORMAL';
+  let openAlert = null; // évènement d'alerte en cours (en mémoire)
 
   console.log(`🌱 Génération de ${DAYS} jours de mesures...`);
 
   for (let d = DAYS - 1; d >= 0; d--) {
     for (let h = 0; h < 24; h++) {
-      // Une mesure toutes les 30 min
       for (let m = 0; m < 60; m += 30) {
         const ts = new Date(now);
         ts.setDate(now.getDate() - d);
         ts.setHours(h, m, 0, 0);
-        if (ts > now) continue; // ne pas générer dans le futur
+        if (ts > now) continue;
 
-        let temp = baseTemperature(h) + Math.round((Math.random() * 4 - 2));
-
-        // Injecter des pics de surchauffe réalistes à certaines heures
-        // (ex : chaque jour vers 15h, montée au-dessus du seuil)
+        let temp = baseTemperature(h) + Math.round(Math.random() * 4 - 2);
+        // Pics de surchauffe réalistes vers 15h certains jours
         if (h === 15 && Math.random() < 0.6) temp = THRESHOLD + Math.floor(Math.random() * 4) + 1;
 
         const humidity = 45 + Math.round(Math.random() * 20);
 
-        // Passer par la vraie logique métier pour générer des évènements cohérents
-        const { state } = await processMeasurement({
-          deviceId: DEVICE,
-          temperature: temp,
-          threshold: THRESHOLD,
-          timestamp: ts,
-        });
+        // Machine à états EN MÉMOIRE (même logique que l'API)
+        const previous = currentState;
+        currentState = computeState(previous, temp, THRESHOLD, HYSTERESIS);
 
-        await Measurement.create({
-          deviceId: DEVICE,
-          temperature: temp,
-          humidity,
-          threshold: THRESHOLD,
-          state,
-          timestamp: ts,
+        if (previous === 'NORMAL' && currentState === 'ALERT') {
+          openAlert = {
+            deviceId: DEVICE, startTime: ts, endTime: null,
+            thresholdAtEvent: THRESHOLD, triggerValue: temp, maxValue: temp,
+            status: 'ONGOING',
+          };
+          alertEvents.push(openAlert);
+        } else if (previous === 'ALERT' && currentState === 'NORMAL' && openAlert) {
+          openAlert.endTime = ts;
+          openAlert.status = 'RESOLVED';
+          openAlert = null;
+        } else if (currentState === 'ALERT' && openAlert && temp > openAlert.maxValue) {
+          openAlert.maxValue = temp;
+        }
+
+        measurements.push({
+          deviceId: DEVICE, temperature: temp, humidity,
+          threshold: THRESHOLD, state: currentState, timestamp: ts,
         });
-        inserted++;
       }
     }
   }
 
-  const alerts = await AlertEvent.countDocuments({});
-  console.log(`✅ Terminé : ${inserted} mesures, ${alerts} évènements d'alerte insérés.`);
+  console.log(`💾 Insertion de ${measurements.length} mesures et ${alertEvents.length} alertes...`);
+  await Measurement.insertMany(measurements);
+  if (alertEvents.length > 0) await AlertEvent.insertMany(alertEvents);
 
+  console.log(`✅ Terminé : ${measurements.length} mesures, ${alertEvents.length} évènements d'alerte insérés.`);
   await mongoose.disconnect();
   process.exit(0);
 }
