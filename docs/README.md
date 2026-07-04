@@ -4,9 +4,21 @@ Ce dossier regroupe la documentation transverse et les livrables du projet.
 
 | Fichier / dossier            | Contenu                                              |
 |------------------------------|------------------------------------------------------|
+| `RAPPORT.html`               | **Rapport de projet complet** — à ouvrir puis convertir en PDF |
 | `DEPLOIEMENT.md`             | Guide de déploiement Cloud (Atlas · Render · Vercel) |
 | `Postman_Collection.json`    | Collection Postman de test de l'API (à importer)     |
-| `captures/`                  | Captures d'écran (tableau de bord, alertes, historiques) |
+| `captures/`                  | Captures d'écran du tableau de bord (états normal et alerte) |
+
+## Générer le rapport en PDF
+
+1. Ouvrir `RAPPORT.html` dans un navigateur (Chrome de préférence).
+2. `Ctrl + P` → Destination **« Enregistrer au format PDF »**.
+3. Marges **« Par défaut »**, cocher **« Graphiques d'arrière-plan »**, puis
+   **Enregistrer**.
+
+> Le fichier est autonome (images intégrées) : il s'imprime correctement même
+> déplacé ou partagé. Pensez à remplacer « [Noms des membres du groupe] » sur
+> la page de garde.
 
 ## Autres documents dans le dépôt
 
