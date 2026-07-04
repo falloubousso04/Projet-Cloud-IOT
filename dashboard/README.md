@@ -9,10 +9,11 @@ Ouvrez [`config.js`](config.js) et renseignez l'URL de l'API :
 
 ```js
 const CONFIG = {
-  API_BASE: 'http://localhost:3000',   // ou l'URL Render en production
+  // Cloud : 'https://projet-cloud-iot.onrender.com' — Local : 'http://localhost:3000'
+  API_BASE: 'https://projet-cloud-iot.onrender.com',
   DEVICE_ID: 'LABO-INFO-01',
-  REFRESH_INTERVAL: 3000,
-  STALE_THRESHOLD_SEC: 20,
+  REFRESH_INTERVAL: 3000,        // rafraîchissement temps réel (ms)
+  STALE_THRESHOLD_SEC: 20,       // délai avant « signal perdu »
 };
 ```
 
@@ -40,11 +41,15 @@ Puis ouvrez `http://localhost:8080`.
 - **Distinction claire des états** (§9) :
   - 🟢 **Normal** · 🔴 **Alerte** (bandeau qui pulse) · 🟠 **Signal perdu**
     (mesure périmée) · ⚪ **Aucune donnée** · 🔌 **Connexion perdue** (API injoignable).
+- **Compteurs d'alertes** : nombre d'alertes **aujourd'hui**, **cette semaine**
+  et **au total** (en rouge dès qu'il y en a).
 - **Graphique temps réel** de la température avec ligne de seuil.
-- **Historique journalier** par période : 🌅 Matin · 🌆 Soir · 🌙 Nuit
+- **Historique journalier** par période : Matin · Soir · Nuit
   (nombre de mesures, moyenne, min/max, nombre d'alertes).
 - **Historique hebdomadaire** : moyennes journalières + nombre d'alertes (barres).
 - **Tableau des dernières alertes** (début, fin, pic, durée, statut).
+- **Responsive mobile** : barre de navigation fixe en bas d'écran
+  (État · Temps réel · Historique · Alertes) avec onglet actif au défilement.
 
 ## ☁️ Déploiement
 

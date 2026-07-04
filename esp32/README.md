@@ -88,5 +88,22 @@ Et le support des cartes ESP32 (*Gestionnaire de cartes* → « esp32 » par Esp
 ## 🧪 Astuce démonstration
 
 Pour tester facilement sans chauffer jusqu'à 30 °C, baissez temporairement
-`THRESHOLD` (par ex. à 28.0) dans le code, ou soufflez de l'air chaud sur le
-capteur : l'humidité et la température montent rapidement.
+`THRESHOLD` dans le code, ou soufflez de l'air chaud sur le capteur :
+l'humidité et la température montent rapidement.
+
+> ⚠️ **Calibration importante :** le seuil d'arrêt (`THRESHOLD − HYSTERESIS`)
+> doit rester **au-dessus de la température ambiante** de la salle. Si la pièce
+> est déjà chaude (ex. ~29 °C), l'alerte ne se coupera jamais : relevez le seuil
+> (ex. `THRESHOLD = 32`).
+
+## 🛠️ Dépannage (problèmes fréquents)
+
+| Symptôme | Cause probable | Solution |
+|----------|----------------|----------|
+| Aucun port COM, ou puce **CP2102** en erreur dans le Gestionnaire de périphériques | Pilote USB manquant | Installer le pilote **CP210x** de [Silicon Labs](https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers) |
+| `Could not open COMx, port busy or doesn't exist` | Mauvais port, ou Moniteur série ouvert | Choisir le **bon port** (celui du CP2102), fermer le Moniteur série |
+| `Failed to connect to ESP32: No serial data received` | La carte n'entre pas en mode téléversement | Maintenir le bouton **BOOT** pendant « Connecting… », ou séquence BOOT + EN |
+| `Serial data stream stopped: serial noise or corruption` | Vitesse trop élevée / câble | Régler **Upload Speed = 115200**, changer de câble USB |
+| L'upload cible un port **virtuel Intel (AMT SOL)** | Confusion de port | Vérifier que le port sélectionné est bien le **Silicon Labs CP210x** |
+| Envoi API en échec (HTTPS) | Certificat non géré | Le code utilise `WiFiClientSecure` + `setInsecure()` (déjà en place) |
+| WiFi ne se connecte pas | Réseau 5 GHz | L'ESP32 ne capte **que le 2.4 GHz** — utiliser un réseau 2.4 GHz |
