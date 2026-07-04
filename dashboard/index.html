@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🌡️ Surveillance Labo Informatique</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-left">
+      <span class="logo">🌡️</span>
+      <div>
+        <h1>Surveillance Labo Informatique</h1>
+        <p class="subtitle">Salle <span id="deviceId">LABO-INFO-01</span></p>
+      </div>
+    </div>
+    <div class="connection" id="connection">
+      <span class="dot" id="connDot"></span>
+      <span id="connText">Connexion…</span>
+    </div>
+  </header>
+
+  <main>
+    <!-- ── Bandeau d'état principal ─────────────────────────────── -->
+    <section class="status-banner" id="statusBanner">
+      <div class="status-icon" id="statusIcon">⏳</div>
+      <div class="status-text">
+        <span class="status-label" id="statusLabel">Chargement…</span>
+        <span class="status-detail" id="statusDetail">Récupération des données</span>
+      </div>
+    </section>
+
+    <!-- ── Cartes de mesures ────────────────────────────────────── -->
+    <section class="cards">
+      <div class="card">
+        <span class="card-title">Température</span>
+        <span class="card-value"><span id="temp">--</span><span class="unit">°C</span></span>
+      </div>
+      <div class="card">
+        <span class="card-title">Humidité</span>
+        <span class="card-value"><span id="humidity">--</span><span class="unit">%</span></span>
+      </div>
+      <div class="card">
+        <span class="card-title">Seuil configuré</span>
+        <span class="card-value"><span id="threshold">--</span><span class="unit">°C</span></span>
+      </div>
+      <div class="card">
+        <span class="card-title">Dernière mesure</span>
+        <span class="card-value small" id="lastUpdate">--</span>
+      </div>
+    </section>
+
+    <!-- ── Graphique temps réel ─────────────────────────────────── -->
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Température en temps réel</h2>
+        <span class="panel-hint">Ligne rouge = seuil</span>
+      </div>
+      <div class="chart-wrap"><canvas id="liveChart"></canvas></div>
+    </section>
+
+    <!-- ── Historique journalier par période ────────────────────── -->
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Historique du jour</h2>
+        <input type="date" id="dailyDate" />
+      </div>
+      <div class="periods" id="periods">
+        <!-- Cartes matin/soir/nuit injectées par JS -->
+      </div>
+    </section>
+
+    <!-- ── Historique hebdomadaire ──────────────────────────────── -->
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Historique hebdomadaire</h2>
+        <input type="date" id="weekDate" />
+      </div>
+      <div class="chart-wrap"><canvas id="weeklyChart"></canvas></div>
+    </section>
+
+    <!-- ── Dernières alertes ────────────────────────────────────── -->
+    <section class="panel">
+      <div class="panel-head"><h2>Dernières alertes</h2></div>
+      <div class="table-wrap">
+        <table id="alertsTable">
+          <thead>
+            <tr>
+              <th>Début</th><th>Fin</th><th>Pic (°C)</th><th>Seuil</th><th>Durée</th><th>Statut</th>
+            </tr>
+          </thead>
+          <tbody id="alertsBody">
+            <tr><td colspan="6" class="empty">Chargement…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    Projet IoT — Licence 3 Informatique · Module Cloud Computing &amp; IoT
+  </footer>
+
+  <!-- Chart.js (CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
