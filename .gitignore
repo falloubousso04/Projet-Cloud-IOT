@@ -27,6 +27,9 @@ esp32/build/
 *.bin
 *.elf
 
+# Secrets ESP32 (config réelle, jamais commitée)
+esp32/config.h
+
 # Misc
 .cache/
 tmp/
