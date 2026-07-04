@@ -1,0 +1,127 @@
+{
+  "info": {
+    "name": "Projet IoT - Surveillance Labo Informatique",
+    "description": "Collection de test de l'API de surveillance IoT (ESP32 + Node.js + MongoDB).\n\nVariables à configurer (onglet Variables) :\n- base_url : URL de l'API (ex: http://localhost:3000 ou https://votre-api.onrender.com)\n- api_key  : clé API secrète (identique a API_KEY du .env)\n- device_id : identifiant de la salle (LABO-INFO-01)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:3000" },
+    { "key": "api_key", "value": "change-moi-par-une-cle-secrete" },
+    { "key": "device_id", "value": "LABO-INFO-01" }
+  ],
+  "item": [
+    {
+      "name": "Infos & Sante",
+      "item": [
+        {
+          "name": "GET / (infos API)",
+          "request": { "method": "GET", "url": { "raw": "{{base_url}}/", "host": ["{{base_url}}"], "path": [""] } }
+        },
+        {
+          "name": "GET /health",
+          "request": { "method": "GET", "url": { "raw": "{{base_url}}/health", "host": ["{{base_url}}"], "path": ["health"] } }
+        }
+      ]
+    },
+    {
+      "name": "Mesures",
+      "item": [
+        {
+          "name": "POST mesure - NORMAL (24C)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-api-key", "value": "{{api_key}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"deviceId\": \"{{device_id}}\",\n  \"temperature\": 24,\n  \"humidity\": 50,\n  \"threshold\": 30\n}" },
+            "url": { "raw": "{{base_url}}/api/measures", "host": ["{{base_url}}"], "path": ["api", "measures"] }
+          }
+        },
+        {
+          "name": "POST mesure - ALERTE (31C)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-api-key", "value": "{{api_key}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"deviceId\": \"{{device_id}}\",\n  \"temperature\": 31,\n  \"humidity\": 55,\n  \"threshold\": 30\n}" },
+            "url": { "raw": "{{base_url}}/api/measures", "host": ["{{base_url}}"], "path": ["api", "measures"] }
+          }
+        },
+        {
+          "name": "POST mesure - RETOUR NORMAL (25C)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-api-key", "value": "{{api_key}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"deviceId\": \"{{device_id}}\",\n  \"temperature\": 25,\n  \"humidity\": 50,\n  \"threshold\": 30\n}" },
+            "url": { "raw": "{{base_url}}/api/measures", "host": ["{{base_url}}"], "path": ["api", "measures"] }
+          }
+        },
+        {
+          "name": "POST mesure - SANS cle (401 attendu)",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"temperature\": 24\n}" },
+            "url": { "raw": "{{base_url}}/api/measures", "host": ["{{base_url}}"], "path": ["api", "measures"] }
+          }
+        },
+        {
+          "name": "GET toutes les mesures",
+          "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/measures?deviceId={{device_id}}&limit=50", "host": ["{{base_url}}"], "path": ["api", "measures"], "query": [ { "key": "deviceId", "value": "{{device_id}}" }, { "key": "limit", "value": "50" } ] } }
+        },
+        {
+          "name": "GET derniere mesure",
+          "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/measures/latest?deviceId={{device_id}}", "host": ["{{base_url}}"], "path": ["api", "measures", "latest"], "query": [ { "key": "deviceId", "value": "{{device_id}}" } ] } }
+        },
+        {
+          "name": "GET mesures - filtre par date",
+          "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/measures?date=2026-07-04", "host": ["{{base_url}}"], "path": ["api", "measures"], "query": [ { "key": "date", "value": "2026-07-04" } ] } }
+        },
+        {
+          "name": "GET mesures - filtre par periode (matin)",
+          "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/measures?period=matin", "host": ["{{base_url}}"], "path": ["api", "measures"], "query": [ { "key": "period", "value": "matin" } ] } }
+        }
+      ]
+    },
+    {
+      "name": "Alertes",
+      "item": [
+        {
+          "name": "GET toutes les alertes",
+          "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/alerts?deviceId={{device_id}}", "host": ["{{base_url}}"], "path": ["api", "alerts"], "query": [ { "key": "deviceId", "value": "{{device_id}}" } ] } }
+        },
+        {
+          "name": "GET alertes actives",
+          "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/alerts/active", "host": ["{{base_url}}"], "path": ["api", "alerts", "active"] } }
+        },
+        {
+          "name": "GET retours a la normale (resolues)",
+          "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/alerts/resolved", "host": ["{{base_url}}"], "path": ["api", "alerts", "resolved"] } }
+        }
+      ]
+    },
+    {
+      "name": "Historiques",
+      "item": [
+        {
+          "name": "GET historique journalier (matin/soir/nuit)",
+          "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/history/daily?deviceId={{device_id}}", "host": ["{{base_url}}"], "path": ["api", "history", "daily"], "query": [ { "key": "deviceId", "value": "{{device_id}}" } ] } }
+        },
+        {
+          "name": "GET historique hebdomadaire",
+          "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/history/weekly?deviceId={{device_id}}", "host": ["{{base_url}}"], "path": ["api", "history", "weekly"], "query": [ { "key": "deviceId", "value": "{{device_id}}" } ] } }
+        },
+        {
+          "name": "GET historique mensuel",
+          "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/history/monthly?deviceId={{device_id}}", "host": ["{{base_url}}"], "path": ["api", "history", "monthly"], "query": [ { "key": "deviceId", "value": "{{device_id}}" } ] } }
+        }
+      ]
+    }
+  ]
+}
