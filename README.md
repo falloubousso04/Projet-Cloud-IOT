@@ -78,11 +78,19 @@ la valeur oscille autour du seuil.
 
 ## 🚀 Démarrage rapide
 
-Voir les README détaillés dans chaque dossier :
+> 👥 **Membres de l'équipe** : voir le [**Guide de démarrage équipe**](GUIDE_EQUIPE.md)
+> pour cloner et se mettre au même niveau (étapes + valeurs à récupérer en privé).
+
+Voir aussi les README détaillés dans chaque dossier :
 
 - [`api/`](api/) — installation et lancement de l'API
 - [`esp32/`](esp32/) — câblage et téléversement du programme ESP32
 - [`dashboard/`](dashboard/) — lancement du tableau de bord
+
+### Accès en ligne (solution déployée)
+
+- Tableau de bord : https://projet-iot-dashboard.onrender.com
+- API : https://projet-cloud-iot.onrender.com
 
 ## 📋 Fonctionnalités
 
