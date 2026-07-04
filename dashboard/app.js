@@ -31,10 +31,10 @@ function formatDuration(startTime, endTime) {
 
 // ─── Gestion du bandeau d'état ────────────────────────────────────
 function setStatus(kind, label, detail) {
-  const banner = $('statusBanner');
-  banner.className = 'status-banner ' + kind;
-  const icons = { normal: '🟢', alert: '🔴', stale: '🟠', nodata: '⚪', offline: '🔌' };
-  $('statusIcon').textContent = icons[kind] || '⏳';
+  const hero = $('statusHero');
+  hero.className = 'status-hero ' + kind;
+  // Propage l'état au niveau de la page (liseré haut + accent barre de titre)
+  document.body.setAttribute('data-state', kind);
   $('statusLabel').textContent = label;
   $('statusDetail').textContent = detail;
 }
@@ -104,13 +104,13 @@ async function refreshLatest() {
     // Absence de données
     if (!res.success || !res.data) {
       setStatus('nodata', 'Aucune donnée', 'En attente de la première mesure du capteur.');
-      $('temp').textContent = '--';
+      $('heroTemp').textContent = '--';
       $('humidity').textContent = '--';
       return;
     }
 
     const m = res.data;
-    $('temp').textContent = m.temperature;
+    $('heroTemp').textContent = m.temperature;
     $('humidity').textContent = m.humidity != null ? m.humidity : '--';
     $('threshold').textContent = m.threshold;
     $('lastUpdate').textContent = formatDateTime(m.timestamp);
@@ -129,10 +129,10 @@ async function refreshLatest() {
 
     // État normal / alerte
     if (m.state === 'ALERT') {
-      const peak = res.meta.activeAlert ? ` — pic ${res.meta.activeAlert.maxValue}°C` : '';
-      setStatus('alert', '⚠️ ALERTE — Surchauffe', `Température ${m.temperature}°C ≥ seuil ${m.threshold}°C${peak}`);
+      const peak = res.meta.activeAlert ? ` (pic ${res.meta.activeAlert.maxValue}°C)` : '';
+      setStatus('alert', 'ALERTE — Surchauffe', `Température ${m.temperature}°C, seuil ${m.threshold}°C dépassé${peak}.`);
     } else {
-      setStatus('normal', 'État normal', `Température ${m.temperature}°C, sous le seuil de ${m.threshold}°C.`);
+      setStatus('normal', 'Normal', `Température ${m.temperature}°C, sous le seuil de ${m.threshold}°C.`);
     }
   } catch (err) {
     // Perte de connexion à l'API
@@ -149,9 +149,9 @@ async function refreshDaily() {
   if (!res.periods) return;
 
   const meta = {
-    matin: { icon: '🌅', label: 'Matin', range: '06h–12h' },
-    soir: { icon: '🌆', label: 'Soir', range: '12h–20h' },
-    nuit: { icon: '🌙', label: 'Nuit', range: '20h–06h' },
+    matin: { label: 'Matin', range: '06h00 – 12h00' },
+    soir: { label: 'Soir', range: '12h00 – 20h00' },
+    nuit: { label: 'Nuit', range: '20h00 – 06h00' },
   };
 
   const container = $('periods');
@@ -160,10 +160,11 @@ async function refreshDaily() {
     const p = res.periods[key];
     const info = meta[key];
     const avg = p.average != null ? `${p.average}°C` : '—';
-    const alertClass = p.alertCount > 0 ? 'badge-alert' : 'badge-ok';
+    const alertClass = p.alertCount > 0 ? 'alert' : 'ok';
     container.innerHTML += `
       <div class="period-card">
-        <h3>${info.icon} ${info.label} <span class="panel-hint">(${info.range})</span></h3>
+        <div class="period-name">${info.label}</div>
+        <div class="period-range">${info.range}</div>
         <div class="period-stats">
           <div class="period-stat"><span>Mesures</span><span class="val">${p.count}</span></div>
           <div class="period-stat"><span>Moyenne</span><span class="val">${avg}</span></div>
