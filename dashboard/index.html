@@ -50,8 +50,24 @@
       </div>
     </section>
 
+    <!-- ── Compteurs d'alertes ──────────────────────────────────── -->
+    <section class="cards">
+      <div class="card card-alert">
+        <span class="card-title">Alertes aujourd'hui</span>
+        <span class="card-value" id="alertsToday">0</span>
+      </div>
+      <div class="card card-alert">
+        <span class="card-title">Alertes cette semaine</span>
+        <span class="card-value" id="alertsWeek">0</span>
+      </div>
+      <div class="card card-alert">
+        <span class="card-title">Total des alertes</span>
+        <span class="card-value" id="alertsTotal">0</span>
+      </div>
+    </section>
+
     <!-- ── Graphique temps réel ─────────────────────────────────── -->
-    <section class="panel">
+    <section class="panel" id="temps-reel">
       <div class="panel-head">
         <h2>Température en temps réel</h2>
         <span class="panel-hint">La ligne pointillée représente le seuil</span>
@@ -60,7 +76,7 @@
     </section>
 
     <!-- ── Historique journalier par période ────────────────────── -->
-    <section class="panel">
+    <section class="panel" id="historiques">
       <div class="panel-head">
         <h2>Historique du jour</h2>
         <input type="date" id="dailyDate" />
@@ -80,7 +96,7 @@
     </section>
 
     <!-- ── Dernières alertes ────────────────────────────────────── -->
-    <section class="panel">
+    <section class="panel" id="alertes">
       <div class="panel-head"><h2>Dernières alertes</h2></div>
       <div class="table-wrap">
         <table id="alertsTable">
@@ -100,6 +116,26 @@
   <footer>
     Projet IoT — Licence 3 Informatique · Module Cloud Computing &amp; IoT
   </footer>
+
+  <!-- ── Barre de navigation (bas d'écran sur mobile) ─────────────── -->
+  <nav class="bottom-nav" id="bottomNav">
+    <a href="#statusHero" class="nav-item" data-target="statusHero">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12l9-9 9 9M5 10v10h5v-6h4v6h5V10"/></svg>
+      <span>État</span>
+    </a>
+    <a href="#temps-reel" class="nav-item" data-target="temps-reel">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg>
+      <span>Temps réel</span>
+    </a>
+    <a href="#historiques" class="nav-item" data-target="historiques">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V9M10 21V4M15 21v-8M20 21v-5"/></svg>
+      <span>Historique</span>
+    </a>
+    <a href="#alertes" class="nav-item" data-target="alertes">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 01-3.4 0"/></svg>
+      <span>Alertes</span>
+    </a>
+  </nav>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
   <script src="config.js"></script>

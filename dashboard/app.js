@@ -236,15 +236,49 @@ async function refreshWeekly() {
   }
 }
 
-// ─── Tableau des alertes ──────────────────────────────────────────
+// ─── Compteurs d'alertes (aujourd'hui / semaine / total) ──────────
+function isSameDay(dateStr) {
+  const d = new Date(dateStr);
+  const now = new Date();
+  return d.getFullYear() === now.getFullYear()
+    && d.getMonth() === now.getMonth()
+    && d.getDate() === now.getDate();
+}
+function weekStartMonday() {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  const day = d.getDay(); // 0 = dimanche
+  d.setDate(d.getDate() - (day === 0 ? 6 : day - 1));
+  return d;
+}
+function setCounter(id, value) {
+  const el = $(id);
+  el.textContent = value;
+  el.classList.toggle('has-alerts', value > 0);
+}
+
+// ─── Tableau des alertes + compteurs ──────────────────────────────
 async function refreshAlerts() {
-  const res = await apiGet(`/api/alerts?deviceId=${DEVICE}&limit=15`);
+  const res = await apiGet(`/api/alerts?deviceId=${DEVICE}&limit=1000`);
+  const alerts = res.data || [];
+
+  // Compteurs
+  const monday = weekStartMonday();
+  const total = alerts.length;
+  const today = alerts.filter((a) => isSameDay(a.startTime)).length;
+  const week = alerts.filter((a) => new Date(a.startTime) >= monday).length;
+  setCounter('alertsToday', today);
+  setCounter('alertsWeek', week);
+  setCounter('alertsTotal', total);
+
+  // Tableau : les 15 plus récentes
   const body = $('alertsBody');
-  if (!res.data || res.data.length === 0) {
+  if (alerts.length === 0) {
     body.innerHTML = '<tr><td colspan="6" class="empty">Aucune alerte enregistrée.</td></tr>';
     return;
   }
-  body.innerHTML = res.data
+  body.innerHTML = alerts
+    .slice(0, 15)
     .map((a) => {
       const tag = a.status === 'ONGOING'
         ? '<span class="tag ongoing">En cours</span>'
@@ -279,9 +313,33 @@ async function refreshHistories() {
   }
 }
 
+// ─── Navigation : surbrillance de la section visible ──────────────
+function setupNav() {
+  const items = document.querySelectorAll('.bottom-nav .nav-item');
+  const sections = ['statusHero', 'temps-reel', 'historiques', 'alertes']
+    .map((id) => document.getElementById(id))
+    .filter(Boolean);
+  if (!('IntersectionObserver' in window) || sections.length === 0) return;
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          items.forEach((it) =>
+            it.classList.toggle('active', it.dataset.target === entry.target.id)
+          );
+        }
+      });
+    },
+    { rootMargin: '-45% 0px -50% 0px', threshold: 0 }
+  );
+  sections.forEach((s) => observer.observe(s));
+}
+
 function init() {
   $('deviceId').textContent = DEVICE;
   initLiveChart();
+  setupNav();
 
   // Historiques rafraîchis au changement de date
   $('dailyDate').addEventListener('change', refreshDaily);

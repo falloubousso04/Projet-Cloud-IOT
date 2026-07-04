@@ -17,6 +17,8 @@
   --accent: #3b82f6;
 }
 
+html, body { max-width: 100%; overflow-x: hidden; }
+
 body {
   font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
   background: var(--bg);
@@ -26,6 +28,12 @@ body {
   flex-direction: column;
   line-height: 1.5;
 }
+
+canvas { max-width: 100%; }
+
+/* Les enfants de main (flex column) doivent pouvoir rétrécir sous leur
+   contenu, sinon un tableau large élargit toute la page. */
+main > * { min-width: 0; }
 
 /* Liseré en haut de page qui reflète l'état (très visible) */
 body::before {
@@ -83,6 +91,7 @@ body[data-state="alert"] .brand-mark  { background: var(--red); }
 main {
   flex: 1;
   width: 100%;
+  min-width: 0; /* autorise le rétrécissement pour contenir les tableaux larges */
   max-width: 1080px;
   margin: 0 auto;
   padding: 24px;
@@ -237,9 +246,70 @@ footer {
   border-top: 1px solid var(--border);
 }
 
-@media (max-width: 620px) {
-  .status-hero { flex-direction: column; align-items: flex-start; }
+/* ─── Cartes compteurs d'alertes ────────────────────────────────── */
+.card-alert .card-value { color: var(--text); transition: color 0.3s; }
+.card-alert .card-value.has-alerts { color: var(--red); }
+
+/* ─── Défilement fluide + décalage sous la barre du haut ─────────── */
+html { scroll-behavior: smooth; }
+section[id] { scroll-margin-top: 16px; }
+
+/* ─── Barre de navigation (mobile) ──────────────────────────────── */
+.bottom-nav {
+  display: none; /* masquée sur desktop, affichée en mobile */
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  z-index: 200;
+  background: var(--panel);
+  border-top: 1px solid var(--border);
+  padding: 6px 4px calc(6px + env(safe-area-inset-bottom, 0px));
+  justify-content: space-around;
+}
+.bottom-nav .nav-item {
+  flex: 1;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 6px 2px;
+  text-decoration: none;
+  color: var(--muted);
+  font-size: 0.7rem;
+  transition: color 0.2s;
+}
+.bottom-nav .nav-item svg {
+  width: 22px; height: 22px;
+  fill: none; stroke: currentColor; stroke-width: 2;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+.bottom-nav .nav-item.active { color: var(--accent); }
+body[data-state="alert"] .bottom-nav .nav-item.active { color: var(--red); }
+
+/* ─── Réglages mobiles ──────────────────────────────────────────── */
+@media (max-width: 768px) {
+  main { padding: 16px; gap: 16px; padding-bottom: 84px; } /* place pour la nav */
+  .bottom-nav { display: flex; }
+  footer { margin-bottom: 64px; }
+
+  .topbar { padding: 14px 16px; }
+  .topbar h1 { font-size: 1.02rem; }
+
+  .status-hero { flex-direction: column; align-items: flex-start; gap: 14px; padding: 20px; }
   .status-right { text-align: left; }
   .status-tag { font-size: 1.5rem; }
-  .status-reading { font-size: 2rem; }
+  .status-reading { font-size: 2.1rem; }
+
+  .cards { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .card { padding: 14px; }
+  .card-value { font-size: 1.5rem; }
+  .card-value.small { font-size: 0.95rem; }
+
+  .panel { padding: 16px; }
+  .chart-wrap { height: 260px; }
+  .periods { grid-template-columns: 1fr; }
+
+  /* Le tableau des alertes défile horizontalement sans élargir la page.
+     La contrainte en vw garantit qu'il reste dans l'écran. */
+  .table-wrap { max-width: calc(100vw - 64px); overflow-x: auto; }
+}
+
+@media (max-width: 380px) {
+  .cards { grid-template-columns: 1fr; }
 }
