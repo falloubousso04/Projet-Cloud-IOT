@@ -18,6 +18,7 @@
  */
 
 #include <WiFi.h>
+#include <WiFiClientSecure.h>
 #include <HTTPClient.h>
 #include <DHT.h>
 #include "config.h"   // Copiez config.example.h en config.h et renseignez-le
@@ -30,6 +31,9 @@
 #define LED_GREEN   5      // LED verte  → état normal
 
 // ─── Paramètres métier ────────────────────────────────────────────────
+// NB : le seuil doit être ADAPTÉ à la température ambiante. Le seuil d'arrêt
+// (THRESHOLD - HYSTERESIS) doit rester AU-DESSUS de la température de repos,
+// sinon l'alerte ne se coupe jamais. Ex. pièce ~29°C → THRESHOLD 32.
 const float THRESHOLD   = 30.0;   // Seuil de déclenchement (°C)
 const float HYSTERESIS  = 2.0;    // Zone morte : arrêt sous (THRESHOLD - HYSTERESIS)
 const unsigned long SEND_INTERVAL = 5000; // Envoi toutes les 5 s
@@ -107,8 +111,13 @@ void sendMeasurement(float temperature, float humidity) {
     return;
   }
 
+  // Client sécurisé pour l'API en HTTPS (Render). setInsecure() accepte le
+  // certificat sans le vérifier — acceptable pour ce TP.
+  WiFiClientSecure client;
+  client.setInsecure();
+
   HTTPClient http;
-  http.begin(API_URL);
+  http.begin(client, API_URL);
   http.addHeader("Content-Type", "application/json");
   http.addHeader("x-api-key", API_KEY);
 
