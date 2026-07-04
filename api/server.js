@@ -68,7 +68,7 @@ app.use(errorHandler);
 async function start() {
   await connectDB();
   app.listen(config.port, () => {
-    console.log(`🚀 API démarrée sur le port ${config.port}`);
+    console.log(`   API démarrée sur le port ${config.port}`);
     console.log(`   Salle surveillée : ${config.deviceId}`);
     console.log(`   Seuil : ${config.defaultThreshold}°C (hystérésis ${config.hysteresis}°C)`);
   });
