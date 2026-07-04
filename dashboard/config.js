@@ -6,7 +6,9 @@
  */
 const CONFIG = {
   // URL de base de l'API (sans slash final)
-  API_BASE: 'http://localhost:3000',
+  // Local  : 'http://localhost:3000'
+  // Cloud  : 'https://projet-cloud-iot.onrender.com'
+  API_BASE: 'https://projet-cloud-iot.onrender.com',
 
   // Identifiant de la salle surveillée
   DEVICE_ID: 'LABO-INFO-01',
